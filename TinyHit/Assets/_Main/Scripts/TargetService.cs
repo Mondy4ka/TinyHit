@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class TargetService : MonoBehaviour
 {
+    public Target CurrentTarget => _currentTarget;
+
     [SerializeField] private Target _targetPrefab;
     [SerializeField] private Transform _targetPoint;
     [SerializeField] private Transform _targetSpawnPoint;

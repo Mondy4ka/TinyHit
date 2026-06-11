@@ -2,8 +2,13 @@ using UnityEngine;
 
 public class Target : MonoBehaviour
 {
+    public float KnifeDepth => _knifeDepth;
+
     public TargetHealth TargetHealth { get; private set; }
     public TargetRotate TargetRotate { get; private set; }
+
+    [Header("Knifes Settings")]
+    [SerializeField] private float _knifeDepth;
 
     [Header("Rotation Settings")]
     [SerializeField] private float _maxRotateSpeed;
@@ -21,17 +26,17 @@ public class Target : MonoBehaviour
         TargetRotate = new(transform, _maxRotateSpeed, _accelerationTime, _decelerationTime, _rotateTime, _idleTime);
 
         TargetHealth.Initialize();
-
-        Invoke(nameof(Kill), 3);
     }
 
-    private void Kill()
-    {
-        TargetHealth.TakeDamage(int.MaxValue);
-    }
+    public void Kill() => TargetHealth?.TakeDamage(int.MaxValue);
 
     public void Update()
     {
         TargetRotate?.Update();
+    }
+
+    public void OnKnifeHit(Knife knife)
+    {
+        TargetHealth.TakeDamage(knife.Damage);
     }
 }
