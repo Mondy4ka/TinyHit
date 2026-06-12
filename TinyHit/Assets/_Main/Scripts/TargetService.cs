@@ -1,9 +1,10 @@
 using PrimeTween;
+using System;
 using UnityEngine;
 
-public class TargetService : MonoBehaviour
+public class TargetService
 {
-    public Target CurrentTarget => _currentTarget;
+    public event Action<Target> OnTargetChanged;
 
     [SerializeField] private Target _targetPrefab;
     [SerializeField] private Transform _targetPoint;
@@ -12,26 +13,33 @@ public class TargetService : MonoBehaviour
     [SerializeField] private Ease _animationType;
     [SerializeField] private float _durationAnimation;
 
+    private ObjectPool<Target> _targetPool;
+
     private Target _currentTarget;
     private Tween _currentTween;
 
-    public void Start()
+    public void Initialize()
     {
-        SpawnTarget();
+        _targetPool = new(_targetPrefab);
+
+    }
+
+    public void StopAnimation()
+    {
+        if (_currentTween.isAlive)
+            _currentTween.Stop();
     }
 
     private void SpawnTarget()
     {
-        if (_currentTarget != null)
-        {
-            DestroyTarget();
-            return;
-        }
+        if (_currentTarget != null) return;
 
-        if (_currentTween.isAlive)
-            _currentTween.Stop();
+        StopAnimation();
 
-        _currentTarget = Instantiate(_targetPrefab, _targetSpawnPoint.position, Quaternion.identity);
+        Target newTarget = 
+
+
+        _currentTarget = UnityEngine.Object.Instantiate(_targetPrefab, _targetSpawnPoint.position, Quaternion.identity);
         _currentTarget.Initialize();
         _currentTarget.TargetHealth.OnDeath += DestroyTarget;
         _currentTween = Tween.Position(_currentTarget.transform, _targetPoint.position, _durationAnimation, _animationType)
@@ -55,7 +63,7 @@ public class TargetService : MonoBehaviour
                 if (_currentTarget != null)
                 {
                     _currentTarget.TargetHealth.OnDeath -= DestroyTarget;
-                    Destroy(_currentTarget.gameObject);
+                    UnityEngine.Object.Destroy(_currentTarget.gameObject);
                     _currentTarget = null;
                 }
 

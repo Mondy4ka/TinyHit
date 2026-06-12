@@ -33,7 +33,11 @@ public class Knife : MonoBehaviour
 
     public void Throw() => _currentTween = Tween.Position(transform, _positionInTarget, _throwTime, Ease.Linear);
 
-    public void BreakAnimation() => _currentTween.Stop();
+    public void StopAnimation()
+    {
+        if (_currentTween.isAlive)
+            _currentTween.Stop();
+    }
 
     public void PlaceInTarget()
     {
@@ -53,14 +57,14 @@ public class Knife : MonoBehaviour
         {
             if (collision.GetComponent<Knife>().IsStatic == false) return;
 
-            BreakAnimation();
+            StopAnimation();
             OnGameOver?.Invoke();
         }
 
         if (collision.CompareTag("Target"))
         {
             _target.OnKnifeHit(this);
-            BreakAnimation();
+            StopAnimation();
             PlaceInTarget();
         }
     }

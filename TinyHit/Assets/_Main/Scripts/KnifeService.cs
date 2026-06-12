@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KnifeService : MonoBehaviour
+public class KnifeService
 {
     [SerializeField] private Knife _knifePrefab;
     [SerializeField] private TargetService _targetService;
@@ -9,19 +9,27 @@ public class KnifeService : MonoBehaviour
     [SerializeField] private Transform _knifePoint;
     [SerializeField] private List<int> _knifeDamage;
 
-    private KnifePool _knifePool;
+    private ObjectPool<Knife> _knifePool;
     private Knife _currentKnife;
+    private Target _currentTarget;
+    private bool _isThrowActive;
 
-    private void Awake()
+    public void Initialize()
     {
         _knifePool = new(_knifePrefab);
 
         _knifePool.Initialize(_poolSize);
     }
 
-    private void Update()
+    public void OnTargetChanged(Target newTarget)
     {
-        if (Input.GetMouseButtonDown(3))
+        _currentTarget = newTarget;
+        _currentKnife.Initialize(_currentTarget, _knifeDamage[Random.Range(0, _knifeDamage.Count)]);
+    }
+
+    public void Update()
+    {
+        if (Input.GetMouseButtonDown(3) && _isThrowActive)
         {
             _currentKnife.Throw();
             _currentKnife = null;
@@ -34,12 +42,12 @@ public class KnifeService : MonoBehaviour
     {
         if (_currentKnife != null)
         {
-            _knifePool.ReturnKnife(_currentKnife);
+            _knifePool.ReturnItem(_currentKnife);
             _currentKnife = null;
         }
 
-        _currentKnife = _knifePool.GetKnife();
+        _currentKnife = _knifePool.GetItem();
         _currentKnife.MoveTo(_knifePoint.position);
-        _currentKnife.Initialize(_targetService.CurrentTarget, _knifeDamage[Random.Range(0, _knifeDamage.Count)]);
+        _currentKnife.Initialize(_currentTarget, _knifeDamage[Random.Range(0, _knifeDamage.Count)]);
     }
 }
